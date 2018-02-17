@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="rd-nmbr" style="height: 75%; width: 15%; font-size: 175px; opacity: 0.7; color: black" class="center-block"></div>
+    <button class="btn btn-lg btn-danger center-block" style="margin-bottom: -10%;" id="clk_btn">Generate Random Numbers from Server</button>
+    <div id="content-div"></div>
+{% endblock %}
+
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
+<script>
+
+
+
+            $(function () {
+
+
+                $('#clk_btn').click(function () {
+                    $.ajax({
+                        url: "{{ request.path }}",
+                        type: 'GET',
+                        success: function (response) {
+                            console.log(response, 'succcess')
+                        }
+                    });
+                    })
+            // Correctly decide between ws:// and wss://
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var ws_path = ws_scheme + '://' + window.location.host + "/channel/demo/";
+            console.log("Connecting to " + ws_path);
+            var socket = new ReconnectingWebSocket(ws_path);
+
+
+            socket.onopen = function () {
+        console.log("Connected to chat socket");
+    };
+           socket.onmessage = function (message) {
+               var obj = JSON.parse(message.data)
+               $("#rd-nmbr").html(obj.id)
+           }
+
+            });
+
+</script>
+
+{% endblock %}
